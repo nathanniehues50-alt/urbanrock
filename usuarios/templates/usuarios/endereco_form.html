@@ -1,0 +1,124 @@
+{% extends 'produtos/base.html' %}
+
+
+{% block title %}{{ titulo }} | UrbanRock{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Início</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'minha_conta' %}">Minha conta</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h4 class="mb-3">{{ titulo }}</h4>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label">Nome do destinatário</label>
+              {{ form.nome_destinatario }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">CEP</label>
+              {{ form.cep }}
+              <div class="form-text">Digitou o CEP e saiu do campo? Vamos tentar buscar o endereço automaticamente.</div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Estado</label>
+                {{ form.estado }}
+              </div>
+              <div class="col-md-8 mb-3">
+                <label class="form-label">Cidade</label>
+                {{ form.cidade }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Bairro</label>
+              {{ form.bairro }}
+            </div>
+
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label class="form-label">Rua</label>
+                {{ form.rua }}
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Número</label>
+                {{ form.numero }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Complemento</label>
+              {{ form.complemento }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Referência</label>
+              {{ form.referencia }}
+            </div>
+
+            <div class="form-check mb-3">
+              {{ form.padrao }}
+              <label class="form-check-label ms-1">Definir como endereço principal</label>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'minha_conta' %}" class="btn btn-outline-secondary">
+                Voltar
+              </a>
+              <button type="submit" class="btn btn-primary">
+                Salvar
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Busca CEP automático via ViaCEP
+document.addEventListener('DOMContentLoaded', function () {
+  const cepInput = document.querySelector('input[data-cep="true"]');
+  if (!cepInput) return;
+
+  cepInput.addEventListener('blur', function () {
+    let cep = this.value.replace(/\D/g, '');
+    if (cep.length !== 8) return;
+
+    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.erro) return;
+        const logradouro = document.getElementById('{{ form.rua.id_for_label }}');
+        const bairro = document.getElementById('{{ form.bairro.id_for_label }}');
+        const cidade = document.getElementById('{{ form.cidade.id_for_label }}');
+        const estado = document.getElementById('{{ form.estado.id_for_label }}');
+
+        if (logradouro && data.logradouro) logradouro.value = data.logradouro;
+        if (bairro && data.bairro) bairro.value = data.bairro;
+        if (cidade && data.localidade) cidade.value = data.localidade;
+        if (estado && data.uf) estado.value = data.uf;
+      })
+      .catch(e => console.log(e));
+  });
+});
+</script>
+{% endblock %}

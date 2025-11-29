@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Minha conta - UrbanRock{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <style>
+        .account-header {
+            background: linear-gradient(90deg, #111827, #1f2933);
+            color: #fff;
+            border-radius: 0.75rem;
+        }
+        .account-header .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        .badge-soft {
+            background-color: rgba(59, 130, 246, 0.12);
+            color: #3b82f6;
+        }
+        .form-text {
+            color: #ccc !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Cabeçalho da conta -->
+    <div class="account-header p-4 mb-4 d-flex flex-wrap align-items-center gap-3">
+
+        <!-- Foto do perfil -->
+        <div class="avatar me-3">
+            {% if request.user.perfil.foto %}
+                <img src="{{ request.user.perfil.foto.url }}"
+                     alt="Foto de perfil"
+                     style="width:100%; height:100%; object-fit:cover;">
+            {% else %}
+                {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+            {% endif %}
+        </div>
+
+        <!-- Nome -->
+        <div class="flex-grow-1">
+            <h1 class="h4 mb-1">
+                Olá, {{ request.user.first_name|default:request.user.username }} 👋
+            </h1>
+            <p class="mb-0 text-light small">
+                Gerencie seus dados pessoais, endereços e segurança da sua conta.
+            </p>
+        </div>
+
+        <!-- Badge -->
+        <div class="text-end">
+            <span class="badge badge-soft px-3 py-2 rounded-pill">
+                Cliente UrbanRock
+            </span>
+        </div>
+    </div>
+
+    <!-- Mensagens -->
+    {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-2">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+
+        <!-- Coluna esquerda: dados pessoais -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+
+                    <h2 class="h5 mb-3">Dados pessoais</h2>
+                    <p class="text-muted small">
+                        Essas informações são usadas para comunicação e experiência na loja.
+                    </p>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Nome -->
+                        <div class="mb-3">
+                            <label class="form-label" for="id_first_name">Nome</label>
+                            {{ u_form.first_name }}
+                            {% if u_form.first_name.errors %}
+                                <div class="text-danger small">
+                                    {% for error in u_form.first_name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label" for="id_email">E-mail</label>
+                            {{ u_form.email }}
+                            {% if u_form.email.errors %}
+                                <div class="text-danger small">
+                                    {% for error in u_form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Nome completo -->
+                        <div class="mb-3">
+                            <label class="form-label" for="id_nome_completo">Nome completo para entregas</label>
+                            {{ p_form.nome_completo }}
+                            {% if p_form.nome_completo.errors %}
+                                <div class="text-danger small">
+                                    {% for error in p_form.nome_completo.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Foto -->
+                        <div class="mb-3">
+                            <label class="form-label">Foto de perfil</label>
+                            {{ p_form.foto }}
+                            <div class="form-text">Recomendado: imagem quadrada, até 2MB.</div>
+                            {% if p_form.foto.errors %}
+                                <div class="text-danger small">
+                                    {% for error in p_form.foto.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botões -->
+                        <button type="submit" class="btn btn-primary">
+                            Salvar alterações
+                        </button>
+                        <a href="{% url 'alterar_senha' %}" class="btn btn-outline-secondary ms-2">
+                            Alterar senha
+                        </a>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna direita: endereços -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body d-flex flex-column">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="h5 mb-0">Meus endereços</h2>
+                            <p class="text-muted small mb-0">
+                                Gerencie os locais de entrega dos seus pedidos.
+                            </p>
+                        </div>
+                        <a href="{% url 'endereco_novo' %}" class="btn btn-sm btn-primary">
+                            + Novo endereço
+                        </a>
+                    </div>
+
+                    {% if enderecos %}
+                        <div class="list-group list-group-flush flex-grow-1">
+                            {% for endereco in enderecos %}
+                                <div class="list-group-item px-0 py-3">
+
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>{{ endereco.nome_destinatario }}</strong>
+
+                                            {% if endereco.padrao %}
+                                                <span class="badge bg-success ms-1">Padrão</span>
+                                            {% endif %}
+
+                                            <div class="small text-muted">
+                                                {{ endereco.rua }}, {{ endereco.numero }}
+                                                {% if endereco.complemento %}- {{ endereco.complemento }}{% endif %}
+                                                <br>
+                                                {{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}
+                                                <br>
+                                                CEP {{ endereco.cep }}
+                                            </div>
+                                        </div>
+
+                                        <div class="text-end small">
+                                            <a href="{% url 'endereco_editar' endereco.pk %}" class="d-block text-decoration-none">
+                                                Editar
+                                            </a>
+                                            <a href="{% url 'endereco_remover' endereco.pk %}" class="d-block text-danger text-decoration-none">
+                                                Remover
+                                            </a>
+                                            {% if not endereco.padrao %}
+                                                <a href="{% url 'endereco_definir_padrao' endereco.pk %}" class="d-block mt-1 text-decoration-none">
+                                                    Definir padrão
+                                                </a>
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    {% else %}
+
+                        <p class="text-muted small">
+                            Você ainda não cadastrou nenhum endereço.
+                            Clique em <strong>“Novo endereço”</strong> para adicionar um.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
