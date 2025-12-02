@@ -179,8 +179,18 @@ def home(request):
                 "produtos": produtos_geral,
             })
 
+    # 🔥 COLETAR TODOS OS IDs JÁ EXIBIDOS NOS CARROSSEIS
+    ids_exibidos = []
+    for sec in carrosseis:
+        ids_exibidos += list(sec["produtos"].values_list("id", flat=True))
+
     destaques = Produto.objects.filter(destaque=True)[:6]
-    produtos_recém = Produto.objects.all().order_by("-id")[:12]
+
+    # 🔥 "EXPLORAR MAIS PRODUTOS" SEM REPETIR O QUE JÁ SAIU NOS CARROSSEIS
+    produtos_recém_qs = Produto.objects.all().order_by("-id")
+    if ids_exibidos:
+        produtos_recém_qs = produtos_recém_qs.exclude(id__in=ids_exibidos)
+    produtos_recém = produtos_recém_qs[:12]
 
     return render(request, "home.html", {
         "carrosseis": carrosseis,

@@ -4,7 +4,17 @@
 {% block title %}UrbanRock - Marketplace nacional de confiança{% endblock %}
 
 {% block extra_head %}
-  {{ block.super }}
+<div style="
+    background: #facc15;
+    padding: 10px 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #000;
+">
+    🚧 A UrbanRock está em construção. Algumas funções não estão disponíveis.
+</div>
+ 
+ {{ block.super }}
   <style>
     /* Card de produto com layout padronizado */
     .produto-card {
@@ -70,6 +80,32 @@
       <div>Compra protegida e suporte rápido</div>
     </div>
   </div>
+
+  {# BANNER DE MANUTENÇÃO PREMIUM (IGUAL DA LANDING) #}
+<div style="
+    background: #0f172a;
+    border-bottom: 1px solid #1f2937;
+    padding: 14px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+">
+  <div class="container text-center">
+    <span style="
+        background: linear-gradient(135deg, #facc15, #f97316);
+        color: #111827;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    ">
+      <span>🚧</span>
+      <span>Estamos realizando manutenção — o site em breve funcionando normalmente.</span>
+    </span>
+  </div>
+</div>
+
 
   {# HERO PRINCIPAL #}
   <section class="bg-light py-4">
@@ -184,7 +220,12 @@
                 <div class="card produto-card h-100 border-0">
                   <a href="{% url 'produto_detalhe' produto.id %}" class="text-decoration-none text-dark">
                     <div class="produto-card-img-wrapper">
-                      <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" loading="lazy">
+                      {# >>> AQUI TRATAMOS A IMAGEM VAZIA <<< #}
+                      {% if produto.imagem %}
+                        <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" loading="lazy">
+                      {% else %}
+                        <img src="{% static 'img/sem-imagem.png' %}" alt="{{ produto.nome }}" loading="lazy">
+                      {% endif %}
                     </div>
                     <div class="card-body">
                       <h3 class="card-title h6 text-truncate mb-1">
@@ -237,7 +278,12 @@
         <div class="card produto-card h-100 border-0">
           <a href="{% url 'produto_detalhe' produto.id %}" class="text-decoration-none text-dark">
             <div class="produto-card-img-wrapper">
-              <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" loading="lazy">
+              {# >>> MESMA LÓGICA AQUI NA LISTA GERAL <<< #}
+              {% if produto.imagem %}
+                <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'img/sem-imagem.png' %}" alt="{{ produto.nome }}" loading="lazy">
+              {% endif %}
             </div>
             <div class="card-body">
               <h3 class="card-title h6 text-truncate mb-1">

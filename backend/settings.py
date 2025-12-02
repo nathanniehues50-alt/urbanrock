@@ -3,13 +3,20 @@ from pathlib import Path
 # Caminho base do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'   # pasta onde o collectstatic junta tudo
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # ============================
 # SEGURANÇA
 # ============================
 
-SECRET_KEY = 'sua-secret-key-aqui'
-DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = 'Caralhoa4'
+DEBUG = False
+ALLOWED_HOSTS = ["104.131.73.32", "urbanrock.com.br", "www.urbanrock.com.br",]
+
 
 
 # ============================
