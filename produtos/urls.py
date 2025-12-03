@@ -1,10 +1,12 @@
-# produtos/urls.py
 from django.urls import path
 from . import views
 
 urlpatterns = [
     # Home
     path('', views.home, name='home'),
+
+    # Buscar produtos
+    path('buscar/', views.buscar_produtos, name='buscar_produtos'),
 
     # Detalhe do produto
     path('produto/<int:produto_id>/', views.produto_detalhe, name='produto_detalhe'),

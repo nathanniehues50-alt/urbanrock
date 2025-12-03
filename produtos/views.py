@@ -8,6 +8,13 @@ from .models import Produto, AvaliacaoProduto
 # ------------------ FUNÇÕES DO CARRINHO --------------
 # ====================================================
 
+def buscar_produtos(request):
+    termo = request.GET.get("q", "")
+
+    produtos = Produto.objects.filter(nome__icontains=termo)
+
+    return render(request, "produtos/buscar.html", {"produtos": produtos, "termo": termo})
+
 def _get_cart(session):
     """Retorna o carrinho existente na sessão ou cria um novo."""
     return session.setdefault("cart", {})

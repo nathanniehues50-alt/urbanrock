@@ -15,7 +15,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 SECRET_KEY = 'Caralhoa4'
 DEBUG = False
-ALLOWED_HOSTS = ["104.131.73.32", "urbanrock.com.br", "www.urbanrock.com.br",]
+ALLOWED_HOSTS = [
+    "urbanrock.com.br",
+    "www.urbanrock.com.br",
+    "104.131.73.32",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 
@@ -26,7 +32,7 @@ ALLOWED_HOSTS = ["104.131.73.32", "urbanrock.com.br", "www.urbanrock.com.br",]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'django.contrib.contenttypes',''
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -159,7 +165,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/entrar/'
 
-DEBUG = False
+DEBUG = True
 
 CSRF_TRUSTED_ORIGINS = [
     "https://urbanrock.com.br",
