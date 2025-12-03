@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ produto.nome }} | UrbanRock{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="row g-4">
+    
+    <!-- GALERIA DE IMAGENS -->
+    <div class="col-md-6">
+
+      <!-- Imagem principal -->
+      <div class="product-main-image mb-3">
+        <img id="mainImage"
+             src="{% if produto.imagem %}{{ produto.imagem.url }}{% else %}{% static 'img/no-image.png' %}{% endif %}"
+             class="img-fluid"
+             alt="{{ produto.nome }}">
+      </div>
+
+      <!-- Miniaturas -->
+      <div class="d-flex gap-2 flex-wrap">
+        {% if produto.imagem %}
+          <img src="{{ produto.imagem.url }}"
+               class="thumb-img"
+               onclick="trocarImagem(this.src)">
+        {% endif %}
+
+        {% for img in produto.imagens.all %}
+          <img src="{{ img.imagem.url }}"
+               class="thumb-img"
+               onclick="trocarImagem(this.src)">
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <!-- INFORMAÇÕES -->
+    <div class="col-md-6">
+
+      <!-- Título e categoria -->
+      <h1 class="product-title mb-1">{{ produto.nome }}</h1>
+      {% if produto.categoria %}
+        <p class="small text-muted mb-2">
+          Categoria: <strong>{{ produto.categoria }}</strong>
+        </p>
+      {% endif %}
+
+      <!-- Preço / preço promocional -->
+      {% if produto.preco_promocional %}
+        <div class="product-price mb-1 text-success">
+          R$ {{ produto.preco_promocional|floatformat:2 }}
+        </div>
+        <p class="text-muted text-decoration-line-through small mb-2">
+          De: R$ {{ produto.preco|floatformat:2 }}
+        </p>
+      {% else %}
+        <div class="product-price mb-2">
+          R$ {{ produto.preco|floatformat:2 }}
+        </div>
+      {% endif %}
+
+      <!-- Estoque -->
+      {% if produto.estoque > 0 %}
+        <p class="small text-success mb-3">
+          Em estoque ({{ produto.estoque }} disponíveis)
+        </p>
+      {% else %}
+        <p class="small text-danger mb-3">
+          Produto indisponível no momento
+        </p>
+      {% endif %}
+
+      <!-- Descrição curta -->
+      <p class="text-muted mb-3">
+        {{ produto.descricao|default:"Sem descrição disponível." }}
+      </p>
+
+      <!-- Ações principais (comprar / adicionar ao carrinho) -->
+      {% if produto.estoque > 0 %}
+      <div class="mb-4">
+
+        <!-- aqui no futuro você pode ligar o "Comprar agora" direto no checkout -->
+        <button class="btn btn-primary btn-lg px-4 me-2" type="button">
+          Comprar agora
+        </button>
+
+        <!-- Formulário de adicionar ao carrinho -->
+        <form method="post"
+              action="{% url 'adicionar_ao_carrinho' produto.id %}"
+              class="d-inline-flex flex-wrap align-items-end gap-2">
+          {% csrf_token %}
+
+          <div>
+            <label class="form-label mb-1">Quantidade</label>
+            <input type="number" name="quantidade" value="1" min="1"
+                   class="form-control" style="max-width: 120px;">
+          </div>
+
+          {# Se no futuro tiver tamanho/cor, ativa isso:
+          <div>
+            <label class="form-label mb-1">Tamanho</label>
+            <select name="variacao" class="form-select">
+              <option value="P">P</option>
+              <option value="M">M</option>
+              <option value="G">G</option>
+            </select>
+          </div>
+          #}
+
+          <button type="submit" class="btn btn-outline-primary btn-lg px-4">
+            Adicionar ao carrinho
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+      <!-- Benefícios / informações extras -->
+      <ul class="list-group shadow-sm mb-3">
+        <li class="list-group-item">Frete grátis acima de R$ 199</li>
+        <li class="list-group-item">Troca garantida em até 30 dias</li>
+        <li class="list-group-item">Pagamento em até 10x sem juros</li>
+      </ul>
+
+      <!-- Info técnica simples -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title mb-2">Informações rápidas</h6>
+          <dl class="row mb-0 small">
+            <dt class="col-4 text-muted">Código</dt>
+            <dd class="col-8">{{ produto.id }}</dd>
+
+            {% if produto.categoria %}
+            <dt class="col-4 text-muted">Categoria</dt>
+            <dd class="col-8">{{ produto.categoria }}</dd>
+            {% endif %}
+
+            {% if produto.estoque is not None %}
+            <dt class="col-4 text-muted">Estoque</dt>
+            <dd class="col-8">{{ produto.estoque }}</dd>
+            {% endif %}
+          </dl>
+        </div>
+      </div>
+
+      <!-- Ficha técnica (especificações detalhadas) -->
+      {% if produto.especificacoes %}
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body">
+          <h4 class="mb-3">Ficha Técnica</h4>
+          <table class="table table-sm mb-0">
+            <tbody>
+              {% for chave, valor in produto.especificacoes.items %}
+              <tr>
+                <th class="text-muted" style="width: 220px;">{{ chave }}</th>
+                <td>{{ valor }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+  <!-- DESCRIÇÃO AVANÇADA -->
+  <div class="row mt-5">
+    <div class="col-lg-8">
+      <h3 class="mb-3">Descrição do produto</h3>
+      <p class="text-secondary" style="line-height: 1.8;">
+        {{ produto.descricao_completa|default:"Nenhuma informação adicional." }}
+      </p>
+    </div>
+  </div>
+
+  <!-- AVALIAÇÕES -->
+  <div class="row mt-5">
+    <div class="col-lg-8">
+      <h3 class="mb-3">Avaliações</h3>
+
+      {% if total_avaliacoes > 0 %}
+        <p class="mb-3">
+          <strong>{{ media_nota }}/5</strong>
+          <span class="text-warning">
+            {% for i in "12345" %}
+              {% if forloop.counter <= media_nota|floatformat:0 %}
+                ★
+              {% else %}
+                ☆
+              {% endif %}
+            {% endfor %}
+          </span>
+          <span class="text-muted">({{ total_avaliacoes }} avaliações)</span>
+        </p>
+
+        {% for avaliacao in avaliacoes %}
+          <div class="card mb-3 shadow-sm border-0">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong>{{ avaliacao.nome|default:"Anônimo" }}</strong>
+                <span class="text-warning small">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= avaliacao.nota %}
+                      ★
+                    {% else %}
+                      ☆
+                    {% endif %}
+                  {% endfor %}
+                </span>
+              </div>
+              <p class="mb-1 small text-muted">
+                {{ avaliacao.criado_em|date:"d/m/Y H:i" }}
+              </p>
+              <p class="mb-0">{{ avaliacao.comentario }}</p>
+            </div>
+          </div>
+        {% endfor %}
+
+      {% else %}
+        <p class="text-muted mb-4">
+          Ainda não há avaliações para este produto.
+        </p>
+      {% endif %}
+
+      <hr class="my-4">
+
+      <h5 class="mb-3">Deixe sua avaliação</h5>
+
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Seu nome (opcional)</label>
+          <input type="text" name="nome" class="form-control" placeholder="Seu nome">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Nota</label>
+          <select name="nota" class="form-select" required>
+            <option value="5">5 - Excelente</option>
+            <option value="4">4 - Muito bom</option>
+            <option value="3">3 - Bom</option>
+            <option value="2">2 - Regular</option>
+            <option value="1">1 - Ruim</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Comentário</label>
+          <textarea name="comentario" rows="3" class="form-control"
+                    placeholder="Conte o que achou do produto" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          Enviar avaliação
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function trocarImagem(src) {
+    const mainImg = document.getElementById('mainImage');
+    if (mainImg) {
+        mainImg.src = src;
+    }
+}
+</script>
+{% endblock %}

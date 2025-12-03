@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CFZCFD2552"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-CFZCFD2552');
+    </script>
+    <!-- Fim Google Analytics -->
+
+    <title>{% block title %}UrbanRock{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- CSS custom -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-light">
+
+<!-- ========================= NAVBAR ========================= -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+  <div class="container-fluid px-4">
+
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+      <span>Urban</span><span class="text-primary">Rock</span>
+    </a>
+
+    <!-- Botão mobile -->
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar" aria-expanded="false"
+            aria-label="Alternar navegação">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Conteúdo colapsável -->
+    <div class="collapse navbar-collapse" id="mainNavbar">
+
+      <!-- BUSCA -->
+      <form class="d-flex my-3 my-lg-0 flex-grow-1 mx-lg-4"
+            method="get"
+            action="{% url 'buscar_produtos' %}">
+        <div class="input-group">
+          <input type="search"
+                 name="q"
+                 class="form-control"
+                 placeholder="Buscar produtos"
+                 aria-label="Buscar produtos">
+          <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+      </form>
+
+      <!-- LINKS À DIREITA -->
+      <ul class="navbar-nav ms-lg-3 align-items-lg-center gap-lg-3">
+
+        <!-- Ajuda -->
+        <li class="nav-item">
+          <a href="#" class="nav-link small">Ajuda</a>
+        </li>
+
+        <!-- Usuário -->
+        {% if user.is_authenticated %}
+          
+          <li class="nav-item">
+            <a href="{% url 'minha_conta' %}" class="nav-link small">
+              {{ user.first_name|default:user.username }}
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="nav-link small bg-transparent border-0 p-0">
+                Sair
+              </button>
+            </form>
+          </li>
+
+        {% else %}
+          {% if request.resolver_match.url_name == 'home' %}
+            <li class="nav-item">
+              <a href="{% url 'login' %}" class="nav-link small">Entrar</a>
+            </li>
+          {% endif %}
+        {% endif %}
+
+        <!-- Carrinho -->
+        <li class="nav-item my-2 my-lg-0">
+          <a class="btn btn-primary" href="{% url 'carrinho' %}">
+            Carrinho
+          </a>
+        </li>
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+<!-- ========================= FIM NAVBAR ========================= -->
+
+<main class="py-0">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="bg-dark text-light py-3 mt-5">
+  <div class="container text-center">
+    <small class="text-muted">
+      UrbanRock &copy; {% now "Y" %} - Todos os direitos reservados.
+    </small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

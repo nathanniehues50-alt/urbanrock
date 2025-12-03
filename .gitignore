@@ -1,0 +1,25 @@
+# Ambiente virtual
+venv/
+ENV/
+env/
+
+# Arquivos compilados Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Banco de dados local
+db.sqlite3
+
+# Arquivos de mídia enviados por usuários (uploads)
+media/
+
+# Arquivos estáticos gerados pelo collectstatic
+staticfiles/
+
+# Logs
+*.log
+
+# Configs sensíveis
+.env
+*.env

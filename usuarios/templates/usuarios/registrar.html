@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Criar conta - UrbanRock{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <style>
+        .register-page {
+            min-height: calc(100vh - 160px); /* desconta navbar + footer */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-card {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .register-card input {
+            width: 100%;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container register-page">
+    <div class="card shadow-sm border-0 register-card">
+        <div class="card-body p-4">
+
+            <h1 class="h4 text-center mb-4">Criar conta</h1>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} py-2">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            {% if form.errors %}
+                <div class="alert alert-danger py-2">
+                    Corrija os campos destacados abaixo.
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Nome -->
+                <div class="mb-3">
+                    <label class="form-label" for="id_first_name">Nome</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="text-danger small">
+                            {% for error in form.first_name.errors %} {{ error }} {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Usuário -->
+                <div class="mb-3">
+                    <label class="form-label" for="id_username">Usuário</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="text-danger small">
+                            {% for error in form.username.errors %} {{ error }} {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label" for="id_email">E-mail</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="text-danger small">
+                            {% for error in form.email.errors %} {{ error }} {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Senha -->
+                <div class="mb-3">
+                    <label class="form-label" for="id_password1">Senha</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="text-danger small">
+                            {% for error in form.password1.errors %} {{ error }} {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Confirmar senha -->
+                <div class="mb-3">
+                    <label class="form-label" for="id_password2">Confirmar senha</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="text-danger small">
+                            {% for error in form.password2.errors %} {{ error }} {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Termos -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="id_aceito_termos" required>
+                    <label class="form-check-label small" for="id_aceito_termos">
+                        Li e aceito os <a href="#" class="text-decoration-none">termos de uso</a>
+                        e a <a href="#" class="text-decoration-none">política de privacidade</a>.
+                    </label>
+                </div>
+
+                <!-- Botão principal -->
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    Criar conta
+                </button>
+            </form>
+
+            <!-- Já tem conta? -->
+            <div class="text-center small">
+                Já tem conta?
+                <a href="{% url 'login' %}" class="text-decoration-none">Entrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

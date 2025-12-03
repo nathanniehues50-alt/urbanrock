@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Entrar - UrbanRock{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <style>
+        /* Área da página de login ocupa quase a tela inteira */
+        .login-page {
+            min-height: calc(100vh - 160px); /* desconta navbar + footer */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            max-width: 420px;
+            width: 100%;
+        }
+
+        /* Inputs com cara de Bootstrap */
+        #id_username,
+        #id_password {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            border-radius: .375rem;
+            border: 1px solid #ced4da;
+            font-size: 0.95rem;
+        }
+
+        #id_username:focus,
+        #id_password:focus {
+            outline: 0;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container login-page">
+    <div class="card shadow-sm border-0 login-card">
+        <div class="card-body p-4">
+            <h1 class="h4 text-center mb-4">Entrar</h1>
+
+            {# Erros gerais de login (usuário/senha inválidos) #}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Usuário</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_password" class="form-label">Senha</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    Entrar
+                </button>
+            </form>
+
+            <div class="d-flex justify-content-between small">
+                <a href="#" class="text-decoration-none">Esqueceu a senha?</a>
+                <a href="{% url 'registrar' %}" class="text-decoration-none">
+                    Criar nova conta
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

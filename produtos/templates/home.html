@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}UrbanRock - Marketplace nacional de confiança{% endblock %}
+
+{% block extra_head %}
+<div style="
+    background: #facc15;
+    padding: 10px 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #000;
+">
+    🚧 A UrbanRock está em construção. Algumas funções não estão disponíveis.
+</div>
+ 
+ {{ block.super }}
+  <style>
+    /* Card de produto com layout padronizado */
+    .produto-card {
+      border-radius: 0.75rem;
+      overflow: hidden;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .produto-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0.4rem 1rem rgba(0,0,0,.08);
+    }
+
+    .produto-card-img-wrapper {
+      width: 100%;
+      aspect-ratio: 4 / 5;           /* todas as imagens mesma proporção */
+      background: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .produto-card-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;             /* corta bordas pra ficar padrão */
+    }
+
+    .produto-preco-principal {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .produto-preco-antigo {
+      font-size: 0.85rem;
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    .carrossel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .75rem;
+    }
+
+    .beneficios-top {
+      font-size: 0.8rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  {# FAIXA DE BENEFÍCIOS GERAL #}
+  <div class="bg-dark text-light py-2">
+    <div class="container d-flex flex-wrap justify-content-center justify-content-md-between gap-3 beneficios-top">
+      <div>Frete para todo o Brasil</div>
+      <div>Parcelamento em até 6x sem juros</div>
+      <div>Troca fácil em até 30 dias</div>
+      <div>Compra protegida e suporte rápido</div>
+    </div>
+  </div>
+
+  {# BANNER DE MANUTENÇÃO PREMIUM (IGUAL DA LANDING) #}
+<div style="
+    background: #0f172a;
+    border-bottom: 1px solid #1f2937;
+    padding: 14px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+">
+  <div class="container text-center">
+    <span style="
+        background: linear-gradient(135deg, #facc15, #f97316);
+        color: #111827;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    ">
+      <span>🚧</span>
+      <span>Estamos realizando manutenção — o site em breve funcionando normalmente.</span>
+    </span>
+  </div>
+</div>
+
+
+  {# HERO PRINCIPAL #}
+  <section class="bg-light py-4">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+
+        <div class="col-lg-6">
+          <h1 class="display-6 fw-bold mb-3">
+            Tudo o que você precisa, em um só lugar.
+          </h1>
+          <p class="lead mb-4">
+            Tecnologia, casa & cozinha, moda, esportes e muito mais.
+            Um marketplace nacional focado em preço justo, confiança e agilidade.
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'home' %}" class="btn btn-primary btn-lg">
+              Explorar produtos
+            </a>
+            <a href="{% url 'home' %}?categoria=promocoes" class="btn btn-outline-dark btn-lg">
+              Ver ofertas do dia
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="position-relative">
+            {# Troque a imagem abaixo por algo geral de marketplace #}
+            <img src="{% static 'img/hero-marketplace.jpg' %}"
+                 alt="UrbanRock Marketplace"
+                 class="img-fluid rounded-4 shadow-sm w-100"
+                 loading="lazy">
+            <span class="badge bg-primary position-absolute top-0 start-0 m-3">
+              Marketplace nacional
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  {# FAIXA DE CATEGORIAS PRINCIPAIS #}
+  <section class="bg-white border-top border-bottom py-3">
+    <div class="container">
+      <div class="d-flex flex-wrap gap-2 justify-content-center">
+        <a href="{% url 'home' %}?categoria=eletronicos" class="btn btn-outline-dark btn-sm rounded-pill">
+          Eletrônicos
+        </a>
+        <a href="{% url 'home' %}?categoria=casa-cozinha" class="btn btn-outline-dark btn-sm rounded-pill">
+          Casa &amp; Cozinha
+        </a>
+        <a href="{% url 'home' %}?categoria=moda" class="btn btn-outline-dark btn-sm rounded-pill">
+          Moda
+        </a>
+        <a href="{% url 'home' %}?categoria=esportes" class="btn btn-outline-dark btn-sm rounded-pill">
+          Esportes &amp; Lazer
+        </a>
+        <a href="{% url 'home' %}?categoria=mercado" class="btn btn-outline-dark btn-sm rounded-pill">
+          Mercado
+        </a>
+        <a href="{% url 'home' %}?categoria=promocoes" class="btn btn-primary btn-sm rounded-pill">
+          Promoções %
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="container py-4">
+
+  {% if carrosseis %}
+    {% for sec in carrosseis %}
+      {% if sec.produtos %}
+      <section class="mb-4">
+
+        <div class="carrossel-header">
+          <h2 class="h5 mb-0">{{ sec.titulo }}</h2>
+          <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'home' %}?categoria={{ sec.slug }}" class="small text-decoration-none">
+              Ver mais &raquo;
+            </a>
+            {# Botões de navegação do carrossel #}
+            <div class="btn-group btn-group-sm" role="group">
+              <button class="btn btn-outline-secondary"
+                      type="button"
+                      data-bs-target="#carousel-{{ sec.slug }}"
+                      data-bs-slide="prev">
+                ‹
+              </button>
+              <button class="btn btn-outline-secondary"
+                      type="button"
+                      data-bs-target="#carousel-{{ sec.slug }}"
+                      data-bs-slide="next">
+                ›
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="carousel-{{ sec.slug }}" class="carousel slide" data-bs-ride="false">
+          <div class="carousel-inner">
+
+            {# Quebra a lista em "páginas" de 4 itens #}
+            {% for produto in sec.produtos %}
+              {% if forloop.first or forloop.counter0|divisibleby:4 %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <div class="row g-3">
+              {% endif %}
+
+              <div class="col-6 col-md-3">
+                <div class="card produto-card h-100 border-0">
+                  <a href="{% url 'produto_detalhe' produto.id %}" class="text-decoration-none text-dark">
+                    <div class="produto-card-img-wrapper">
+                      {# >>> AQUI TRATAMOS A IMAGEM VAZIA <<< #}
+                      {% if produto.imagem %}
+                        <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" loading="lazy">
+                      {% else %}
+                        <img src="{% static 'img/sem-imagem.png' %}" alt="{{ produto.nome }}" loading="lazy">
+                      {% endif %}
+                    </div>
+                    <div class="card-body">
+                      <h3 class="card-title h6 text-truncate mb-1">
+                        {{ produto.nome }}
+                      </h3>
+
+                      {% if produto.preco_promocional %}
+                        <div class="produto-preco-principal text-primary">
+                          R$ {{ produto.preco_promocional }}
+                        </div>
+                        <div class="produto-preco-antigo">
+                          R$ {{ produto.preco }}
+                        </div>
+                      {% else %}
+                        <div class="produto-preco-principal">
+                          R$ {{ produto.preco }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              {% if forloop.last or forloop.counter|divisibleby:4 %}
+                  </div>  {# .row #}
+                </div>    {# .carousel-item #}
+              {% endif %}
+            {% endfor %}
+
+          </div>
+        </div>
+
+      </section>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {# Fallback: lista geral se quiser manter uma vitrine abaixo #}
+  {% if produtos %}
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5 mb-0">Explorar mais produtos</h2>
+      <a href="{% url 'home' %}" class="small text-decoration-none">
+        Ver tudo &raquo;
+      </a>
+    </div>
+    <div class="row g-3">
+      {% for produto in produtos %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card produto-card h-100 border-0">
+          <a href="{% url 'produto_detalhe' produto.id %}" class="text-decoration-none text-dark">
+            <div class="produto-card-img-wrapper">
+              {# >>> MESMA LÓGICA AQUI NA LISTA GERAL <<< #}
+              {% if produto.imagem %}
+                <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'img/sem-imagem.png' %}" alt="{{ produto.nome }}" loading="lazy">
+              {% endif %}
+            </div>
+            <div class="card-body">
+              <h3 class="card-title h6 text-truncate mb-1">
+                {{ produto.nome }}
+              </h3>
+              <div class="produto-preco-principal">
+                R$ {{ produto.preco }}
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# BLOCO DE CONFIANÇA #}
+  <section class="my-5">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="border rounded-3 p-3 h-100">
+          <h3 class="h6">Entrega em todo o país</h3>
+          <p class="small text-muted mb-0">
+            Parceiros logísticos para chegar na sua casa com rapidez e segurança.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="border rounded-3 p-3 h-100">
+          <h3 class="h6">Pagamento facilitado</h3>
+          <p class="small text-muted mb-0">
+            Cartão, Pix e boleto. Parcelamento em até 6x sem juros em cartões selecionados.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="border rounded-3 p-3 h-100">
+          <h3 class="h6">Compra protegida</h3>
+          <p class="small text-muted mb-0">
+            Ambiente seguro e políticas claras de troca e devolução para você comprar tranquilo.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# NEWSLETTER #}
+  <section class="my-4">
+    <div class="bg-dark text-light rounded-3 p-4 p-md-5 text-center">
+      <h2 class="h4 mb-2">Receba ofertas e lançamentos</h2>
+      <p class="small mb-3">
+        Cadastre seu e-mail e fique por dentro das melhores oportunidades do marketplace.
+      </p>
+      <form class="row g-2 justify-content-center">
+        <div class="col-md-4 col-sm-8">
+          <input type="email" class="form-control" placeholder="Seu melhor e-mail">
+        </div>
+        <div class="col-sm-auto">
+          <button type="submit" class="btn btn-primary">
+            Quero receber
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

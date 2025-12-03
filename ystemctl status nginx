@@ -1,0 +1,11 @@
+[0;1;32m●[0m urbanrock.service - Gunicorn para UrbanRock Django
+     Loaded: loaded (/etc/systemd/system/urbanrock.service; disabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Wed 2025-12-03 01:23:20 UTC; 26ms ago
+   Main PID: 2094 (gunicorn)
+      Tasks: 1 (limit: 2307)
+     Memory: 2.3M
+        CPU: 9ms
+     CGroup: /system.slice/urbanrock.service
+             └─2094 /root/urbanrock/venv/bin/python3 /root/urbanrock/venv/bin/gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+
+Dec 03 01:23:20 ubuntu-s-1vcpu-2gb-amd-nyc3-01 systemd[1]: Started Gunicorn para UrbanRock Django.
