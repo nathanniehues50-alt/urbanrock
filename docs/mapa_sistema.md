@@ -67,7 +67,6 @@ flowchart LR
 > **Cuidado na hora de colar:**  
 > tem que ficar exatamente assim: bloco ```mermaid``` dentro do `.md`, sem espaços extras antes/depois.
 
----
 
 ## 2. O que esse diagrama mostra
 
