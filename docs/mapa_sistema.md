@@ -1,107 +1,100 @@
-# Mapa Geral do Sistema – UrbanRock
+# Mapa geral do sistema UrbanRock
 
-Este diagrama mostra toda a arquitetura operacional do UrbanRock: fluxo do cliente, admin, fornecedores, backend, pagamentos e infraestrutura.
+Este documento mostra a **visão macro** do sistema.
+
+Fluxos detalhados:
+
+- [Fluxo do cliente](fluxo_cliente.md)
+- [Fluxo de checkout e pedido](fluxo_checkout_pedido.md)
+- [Fluxo de produtos e estoque](fluxo_produtos_estoque.md)
+- [Fluxo de teste e deploy](fluxo_teste.md)
+
+---
+
+## 1. Mapa macro do sistema
 
 ```mermaid
-flowchart TB
+flowchart LR
+    %% --- AGRUPAMENTOS ---
 
-  %% =============================
-  %% FRONTEND (CLIENTE)
-  %% =============================
-  subgraph FRONTEND["Frontend / Cliente"]
-    F_HOME[Home / Catálogo]
-    F_PRODUTO[Página do Produto]
-    F_CARRINHO[Carrinho]
-    F_CHECKOUT[Checkout]
-    F_CONTA[Minha Conta / Pedidos / Rastreamento]
-  end
+    subgraph Cliente
+        Visitante[Visitante]
+        ClienteLogado[Cliente logado]
+    end
 
-  %% =============================
-  %% BACKEND DJANGO
-  %% =============================
-  subgraph BACKEND["Backend Django – Regras de Negócio"]
-    B_AUTH[Autenticação e Usuários]
-    B_PEDIDOS[Pedidos e Status]
-    B_PAGAMENTO[Processador de Pagamento]
-    B_ESTOQUE[Controle de Estoque]
-    B_FRETE[Cálculo de Frete]
-    B_RASTREIO[Lógica de Rastreamento]
-  end
+    subgraph FrontSite
+        Home[View home]
+        Buscar[View buscar_produtos]
+        ProdutoDet[View produto_detalhe]
+        Carrinho[View carrinho]
+        Checkout[View checkout]
+        AreaCliente[View area do cliente]
+    end
 
-  %% =============================
-  %% ADMIN
-  %% =============================
-  subgraph ADMIN["Painel Admin / Operação"]
-    A_DASH[Dashboard]
-    A_PROD[Produtos e Categorias]
-    A_PED[Pedidos e Atualização]
-    A_CLIENTES[Gestão de Clientes]
-    A_MARKETING[Cupons e Promoções]
-    A_REL[Relatórios]
-  end
+    subgraph Backend
+        SessaoCart[Sessao cart]
+        PedidoView[View criar pedido]
+        Pagamento[Gateway pagamento]
+    end
 
-  %% =============================
-  %% FORNECEDORES / LOGÍSTICA
-  %% =============================
-  subgraph FORNECEDOR["Fornecedores / Logística"]
-    FO_API[Fornecedor Integrado – API]
-    FO_MANUAL[Fornecedor Externo – Painel]
-    FO_ENVIO[Postagem e Transporte]
-  end
+    subgraph Dados
+        TabelaProduto[Model Produto]
+        TabelaPedido[Model Pedido]
+        TabelaItemPedido[Model ItemPedido]
+        TabelaUsuario[Model Usuario]
+    end
 
-  %% =============================
-  %% INFRA
-  %% =============================
-  subgraph INFRA["Infraestrutura"]
-    S_NGINX[Nginx – HTTPS + Proxy]
-    S_GUNICORN[Gunicorn – WSGI]
-    S_DJANGO[Django App]
-    S_DB[(Banco de Dados)]
-    S_STATIC[Arquivos Estáticos / Mídia]
-    S_EMAIL[Serviço de E-mail]
-    S_ANALYTICS[Analytics / Métricas]
-    S_FIREWALL[Firewall / Segurança]
-    S_BACKUP[Backup Automático]
-  end
+    subgraph Admin
+        AdminPainel[Painel admin]
+        Operacoes[Gerenciar produtos e pedidos]
+    end
 
-  %% =============================
-  %% CONEXÕES FRONTEND → BACKEND → INFRA
-  %% =============================
-  F_HOME --> F_PRODUTO --> F_CARRINHO --> F_CHECKOUT --> F_CONTA
+    subgraph Infra
+        Dev[Dev local]
+        GitHub[Repositorio GitHub]
+        CI[Fluxo teste e deploy]
+        Servidor[Servidor producao]
+    end
 
-  F_HOME --> S_NGINX
-  F_PRODUTO --> S_NGINX
-  F_CARRINHO --> S_NGINX
-  F_CHECKOUT --> S_NGINX
-  F_CONTA --> S_NGINX
+    %% --- FLUXO CLIENTE NO SITE ---
 
-  S_NGINX --> S_GUNICORN --> S_DJANGO
-  S_DJANGO --> BACKEND
+    Visitante --> Home
+    Visitante --> Buscar
 
-  BACKEND --> S_DB
-  BACKEND --> S_EMAIL
-  BACKEND --> S_STATIC
-  BACKEND --> S_ANALYTICS
-  BACKEND --> S_FIREWALL
-  S_DB --> S_BACKUP
+    Home --> ProdutoDet
+    Buscar --> ProdutoDet
 
-  %% =============================
-  %% BACKEND <-> ADMIN
-  %% =============================
-  A_DASH --> A_PROD --> B_ESTOQUE
-  A_DASH --> A_PED --> B_PEDIDOS
-  A_DASH --> A_CLIENTES --> B_AUTH
-  A_MARKETING --> B_PEDIDOS
-  A_REL --> S_DB
+    ProdutoDet --> Carrinho
+    Carrinho --> Checkout
 
-  %% =============================
-  %% BACKEND <-> FORNECEDOR
-  %% =============================
-  B_PEDIDOS --> FO_API
-  B_PEDIDOS --> FO_MANUAL
-  FO_ENVIO --> B_RASTREIO
-  B_RASTREIO --> F_CONTA
+    %% Sessao de carrinho
+    Carrinho --> SessaoCart
+    Checkout --> SessaoCart
 
-  %% PAGAMENTO / FRETE DIRETO
-  F_CHECKOUT --> B_PAGAMENTO
-  F_CHECKOUT --> B_FRETE
+    %% Checkout e pedido
+    Checkout --> Pagamento
+    Pagamento --> PedidoView
+
+    PedidoView --> TabelaPedido
+    PedidoView --> TabelaItemPedido
+
+    %% Relacao com produtos
+    Home --> TabelaProduto
+    Buscar --> TabelaProduto
+    ProdutoDet --> TabelaProduto
+
+    %% Area do cliente
+    ClienteLogado --> AreaCliente
+    AreaCliente --> TabelaPedido
+    AreaCliente --> TabelaUsuario
+
+    %% Admin / operacao
+    AdminPainel --> Operacoes
+    Operacoes --> TabelaProduto
+    Operacoes --> TabelaPedido
+
+    %% Infraestrutura e deploy
+    Dev --> GitHub
+    GitHub --> CI
+    CI --> Servidor
+    Servidor --> FrontSite
