@@ -1,52 +1,64 @@
-# Fluxo do Cliente – UrbanRock (Alinhado ao Projeto Real)
+# Fluxo do Cliente – UrbanRock (Fluxo 100% baseado no seu código real)
 
 ```mermaid
 flowchart LR
 
   %% =============================
-  %% NAVEGAÇÃO PRINCIPAL DO CLIENTE
+  %% ROTAS PRINCIPAIS (urls reais)
   %% =============================
 
   INICIO((Usuário entra no site))
-  HOME["Home / Catálogo<br/>(url: '/', app: produtos)"]
-  LISTA["Lista de Produtos / Busca<br/>(mesma home por enquanto)"]
+  HOME["Home<br/>(url: '/')"]
+  BUSCA["Buscar produtos<br/>(url: '/buscar/')"]
   PRODUTO["Detalhe do Produto<br/>(url: '/produto/&lt;id&gt;/')"]
-  CARRINHO["Carrinho de compras"]
 
-  %% AUTENTICAÇÃO / CONTA
+  %% CARRINHO
+  CARRINHO["Carrinho<br/>(url: '/carrinho/')"]
+  ADD["Adicionar ao carrinho<br/>(url: '/carrinho/adicionar/&lt;id&gt;/')"]
+  ATUALIZAR["Atualizar carrinho<br/>(url: '/carrinho/atualizar/&lt;id&gt;/')"]
+  REMOVER["Remover item<br/>(url: '/carrinho/remover/&lt;id&gt;/')"]
+  CUPOM["Aplicar cupom<br/>(url: '/carrinho/cupom/')"]
+  FRETE["Calcular frete<br/>(url: '/carrinho/frete/')"]
+
+  %% LOGIN / CONTA
   CHECK_LOGIN{"Usuário está logado?"}
-  LOGIN["Login<br/>(url: '/entrar/', name='login')"]
-  REGISTRO["Cadastro<br/>(url: '/usuario/registrar/')"]
-  CONTA["Minha Conta<br/>(url: '/minha-conta/', view: minha_conta)"]
+  LOGIN["Login<br/>(url: '/entrar/')"]
+  REGISTRO["Registrar<br/>(url: '/usuario/registrar/')"]
+  CONTA["Minha Conta<br/>(url: '/minha-conta/')"]
+
+  %% ENDEREÇOS
+  END_NOVO["Novo endereço<br/>(url: '/usuario/endereco/novo/')"]
+  END_EDIT["Editar endereço<br/>(url: '/usuario/endereco/&lt;id&gt;/editar/')"]
+  END_REMOVE["Remover endereço<br/>(url: '/usuario/endereco/&lt;id&gt;/remover/')"]
+  END_PADRAO["Definir endereço padrão<br/>(url: '/usuario/endereco/&lt;id&gt;/definir-padrao/')"]
+
+  ALTERAR_SENHA["Alterar senha<br/>(url: '/usuario/alterar-senha/')"]
 
   %% CHECKOUT / PEDIDO
-  CHECKOUT["Checkout<br/>(endereços + confirmação)"]
-  FRETE["Cálculo de frete<br/>(a implementar)"]
-  PAGAMENTO["Pagamento<br/>(Pix / manual – a implementar)"]
-
-  STATUS_PAG{"Pagamento aprovado?"}
-  PEDIDO["Pedido criado<br/>(app: orders / model Pedido)"]
-  ERRO_PAG["Pagamento recusado / erro"]
-
-  OBRIGADO["Página de confirmação<br/>(pós-pedido)"]
-
-  HISTORICO["Meus pedidos<br/>(lista de pedidos do usuário)"]
-  VER_PEDIDO["Detalhe do pedido"]
-  RASTREIO["Rastreamento<br/>(quando implementado)"]
+  CHECKOUT["Checkout<br/>(url: '/checkout/')"]
+  PAGAMENTO["Processar Pagamento<br/>(manualmente por enquanto)"]
+  PEDIDO["Criar Pedido<br/>(model no app 'orders')"]
+  CONFIRMACAO["Página de confirmação<br/>(url: '/confirmacao/&lt;pedido_id&gt;/')"]
 
   %% =============================
   %% FLUXO PRINCIPAL
   %% =============================
 
   INICIO --> HOME
-  HOME --> LISTA
-  HOME --> CONTA
+  HOME --> BUSCA
+  HOME --> PRODUTO
 
-  LISTA --> PRODUTO
-  PRODUTO --> CARRINHO
-  PRODUTO --> LISTA
+  BUSCA --> PRODUTO
 
-  %% CARRINHO → CHECKOUT (COM LOGIN)
+  PRODUTO --> |Adicionar| ADD --> CARRINHO
+  PRODUTO --> |Voltar| HOME
+
+  CARRINHO --> ATUALIZAR --> CARRINHO
+  CARRINHO --> REMOVER --> CARRINHO
+  CARRINHO --> CUPOM --> CARRINHO
+  CARRINHO --> FRETE --> CARRINHO
+
+  %% CARRINHO → LOGIN → CHECKOUT
   CARRINHO --> CHECK_LOGIN
   CHECK_LOGIN --> |Não| LOGIN
   CHECK_LOGIN --> |Não tem conta| REGISTRO
@@ -55,12 +67,11 @@ flowchart LR
   LOGIN --> CHECKOUT
   REGISTRO --> CHECKOUT
 
-  %% CHECKOUT → FRETE → PAGAMENTO
-  CHECKOUT --> FRETE --> PAGAMENTO
-  PAGAMENTO --> STATUS_PAG
+  CHECKOUT --> PAGAMENTO --> PEDIDO --> CONFIRMACAO
 
-  STATUS_PAG --> |Aprovado| PEDIDO --> OBRIGADO
-  STATUS_PAG --> |Erro| ERRO_PAG --> CARRINHO
-
-  %% MINHA CONTA / HISTÓRICO / RASTREIO
-  CONTA --> HISTORICO --> VER_PEDIDO --> RASTREIO
+  %% MINHA CONTA
+  CONTA --> END_NOVO
+  CONTA --> END_EDIT
+  CONTA --> END_REMOVE
+  CONTA --> END_PADRAO
+  CONTA --> ALTERAR_SENHA
