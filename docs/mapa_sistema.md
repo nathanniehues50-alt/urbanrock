@@ -1,100 +1,76 @@
-# Mapa geral do sistema UrbanRock
+flowchart TB
 
-Este documento mostra a **visão macro** do sistema.
-
-Fluxos detalhados:
-
-- [Fluxo do cliente](fluxo_cliente.md)
-- [Fluxo de checkout e pedido](fluxo_checkout_pedido.md)
-- [Fluxo de produtos e estoque](fluxo_produtos_estoque.md)
-- [Fluxo de teste e deploy](fluxo_teste.md)
-
----
-
-## 1. Mapa macro do sistema
-
-```mermaid
-flowchart LR
-    %% --- AGRUPAMENTOS ---
-
+    %% Lado Esquerdo – Cliente
     subgraph Cliente
         Visitante[Visitante]
         ClienteLogado[Cliente logado]
     end
 
-    subgraph FrontSite
-        Home[View home]
-        Buscar[View buscar_produtos]
-        ProdutoDet[View produto_detalhe]
-        Carrinho[View carrinho]
-        Checkout[View checkout]
-        AreaCliente[View area do cliente]
+    %% Frontend
+    subgraph Frontend
+        Home[home]
+        Buscar[buscar_produtos]
+        ProdutoDet[produto_detalhe]
+        Carrinho[carrinho]
+        Checkout[checkout]
+        AreaCliente[area do cliente]
     end
 
+    %% Backend / Lógica
     subgraph Backend
-        SessaoCart[Sessao cart]
-        PedidoView[View criar pedido]
-        Pagamento[Gateway pagamento]
+        SessaoCart[Sessão cart]
+        CriarPedido[View criar pedido]
+        Pagamento[Gateway de pagamento]
     end
 
+    %% Dados / Banco
     subgraph Dados
-        TabelaProduto[Model Produto]
-        TabelaPedido[Model Pedido]
-        TabelaItemPedido[Model ItemPedido]
-        TabelaUsuario[Model Usuario]
+        ProdutoModel[Model Produto]
+        PedidoModel[Model Pedido]
+        ItemPedidoModel[Model ItemPedido]
+        UsuarioModel[Model Usuario]
     end
 
+    %% Admin
     subgraph Admin
         AdminPainel[Painel admin]
-        Operacoes[Gerenciar produtos e pedidos]
+        AdminOps[Gerenciar produtos e pedidos]
     end
 
+    %% Infra
     subgraph Infra
-        Dev[Dev local]
-        GitHub[Repositorio GitHub]
-        CI[Fluxo teste e deploy]
-        Servidor[Servidor producao]
+        GitHub[Repositório GitHub]
+        Deploy[Fluxo de teste e deploy]
+        Servidor[Servidor produção]
     end
 
-    %% --- FLUXO CLIENTE NO SITE ---
+    %% --------- FLUXO PRINCIPAL ---------
 
     Visitante --> Home
     Visitante --> Buscar
-
     Home --> ProdutoDet
     Buscar --> ProdutoDet
-
     ProdutoDet --> Carrinho
     Carrinho --> Checkout
 
-    %% Sessao de carrinho
-    Carrinho --> SessaoCart
-    Checkout --> SessaoCart
-
-    %% Checkout e pedido
     Checkout --> Pagamento
-    Pagamento --> PedidoView
+    Pagamento --> CriarPedido
 
-    PedidoView --> TabelaPedido
-    PedidoView --> TabelaItemPedido
+    CriarPedido --> PedidoModel
+    CriarPedido --> ItemPedidoModel
 
-    %% Relacao com produtos
-    Home --> TabelaProduto
-    Buscar --> TabelaProduto
-    ProdutoDet --> TabelaProduto
+    Home --> ProdutoModel
+    Buscar --> ProdutoModel
+    ProdutoDet --> ProdutoModel
 
-    %% Area do cliente
     ClienteLogado --> AreaCliente
-    AreaCliente --> TabelaPedido
-    AreaCliente --> TabelaUsuario
+    AreaCliente --> PedidoModel
+    AreaCliente --> UsuarioModel
 
-    %% Admin / operacao
-    AdminPainel --> Operacoes
-    Operacoes --> TabelaProduto
-    Operacoes --> TabelaPedido
+    AdminPainel --> AdminOps
+    AdminOps --> ProdutoModel
+    AdminOps --> PedidoModel
 
-    %% Infraestrutura e deploy
-    Dev --> GitHub
-    GitHub --> CI
-    CI --> Servidor
-    Servidor --> FrontSite
+    GitHub --> Deploy
+    Deploy --> Servidor
+    Servidor --> Home
