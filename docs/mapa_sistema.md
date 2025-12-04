@@ -100,3 +100,57 @@ Se quiser, depois a gente faz:
 - uma **versão reduzida** desse mesmo diagrama pro `README.md`,  
 ou  
 - um **PDF/PNG** dessa arquitetura pra você mandar em apresentação, orçamento, ou até em currículo.
+
+flowchart LR
+
+    %% USER
+    subgraph UserLayer[Camada Cliente]
+        client[Navegador ou mobile]
+    end
+
+    %% EDGE / DNS
+    subgraph EdgeLayer[Dominio e Rede]
+        dns[DNS urbanrock.com.br]
+    end
+
+    %% WEB
+    subgraph WebLayer[Camada Web]
+        nginx[Nginx Proxy Reverso]
+    end
+
+    %% APP
+    subgraph AppLayer[Aplicacao Django]
+        django[Django + Gunicorn]
+        services[Catalogo / Carrinho / Checkout / Pedidos]
+        adminpanel[Painel Admin]
+    end
+
+    %% DATA
+    subgraph DataLayer[Camada de Dados]
+        db[(Banco de dados)]
+        media[(Arquivos de midia)]
+    end
+
+    %% DEVOPS
+    subgraph DevOpsLayer[DevOps / Deploy]
+        devpc[Dev local]
+        repo[Repositorio GitHub]
+        deploy[Deploy via SSH]
+        server[Servidor Producao]
+    end
+
+    %% FLUXO USUARIO
+    client --> dns --> nginx --> django
+    django --> services
+    django --> adminpanel
+
+    %% DADOS
+    django --> db
+    django --> media
+
+    %% DEVOPS
+    devpc --> repo --> deploy --> server
+    server --> nginx
+    server --> django
+    server --> db
+    server --> media
