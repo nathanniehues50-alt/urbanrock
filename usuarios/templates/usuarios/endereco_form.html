@@ -1,124 +1,327 @@
-{% extends 'produtos/base.html' %}
-
-
-{% block title %}{{ titulo }} | UrbanRock{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <div class="container py-4">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/">Início</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'minha_conta' %}">Minha conta</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
-    </ol>
-  </nav>
 
-  <div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <h4 class="mb-3">{{ titulo }}</h4>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-transparent p-0 mb-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'home' %}" class="text-decoration-none">Início</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'minha_conta' %}" class="text-decoration-none">Minha conta</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ titulo|default:"Adicionar endereço" }}
+            </li>
+        </ol>
+    </nav>
 
-          <form method="post" novalidate>
-            {% csrf_token %}
+    <!-- Card principal -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h2 class="h4 mb-1">
+                        {{ titulo|default:"Adicionar endereço" }}
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Esses dados serão usados para entrega e cálculo de frete.
+                    </p>
+                </div>
 
-            <div class="mb-3">
-              <label class="form-label">Nome do destinatário</label>
-              {{ form.nome_destinatario }}
+                <div class="card-body">
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for err in form.non_field_errors %}
+                                <div>{{ err }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <!-- importante para voltar pro lugar certo (checkout ou minha_conta) -->
+                        <input type="hidden" name="next" value="{{ next|default:'minha_conta' }}">
+
+                        <div class="row g-3">
+
+                            <!-- Apelido do endereço (Casa, Trabalho, etc.) -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Apelido do endereço
+                                </label>
+                                <input type="text"
+                                       name="apelido"
+                                       class="form-control {% if form.apelido.errors %}is-invalid{% endif %}"
+                                       placeholder="Casa, Trabalho, Depósito..."
+                                       value="{{ form.apelido.value|default_if_none:'' }}">
+                                {% if form.apelido.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.apelido.errors.0 }}
+                                    </div>
+                                {% else %}
+                                    <div class="form-text">
+                                        Um nome curto para identificar este endereço.
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Nome do destinatário -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Nome do destinatário
+                                </label>
+                                <input type="text"
+                                       name="nome_destinatario"
+                                       class="form-control {% if form.nome_destinatario.errors %}is-invalid{% endif %}"
+                                       placeholder="Nome de quem vai receber"
+                                       value="{{ form.nome_destinatario.value|default_if_none:'' }}">
+                                {% if form.nome_destinatario.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.nome_destinatario.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- CEP -->
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    CEP
+                                </label>
+                                <input type="text"
+                                       name="cep"
+                                       id="id_cep"
+                                       class="form-control {% if form.cep.errors %}is-invalid{% endif %}"
+                                       placeholder="00000-000"
+                                       value="{{ form.cep.value|default_if_none:'' }}">
+                                {% if form.cep.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.cep.errors.0 }}
+                                    </div>
+                                {% else %}
+                                    <div class="form-text">
+                                        Digite o CEP e saia do campo. Vamos tentar buscar o endereço automaticamente.
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Estado
+                                </label>
+                                <input type="text"
+                                       name="estado"
+                                       id="id_estado"
+                                       class="form-control {% if form.estado.errors %}is-invalid{% endif %}"
+                                       placeholder="UF"
+                                       value="{{ form.estado.value|default_if_none:'' }}">
+                                {% if form.estado.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.estado.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Cidade -->
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Cidade
+                                </label>
+                                <input type="text"
+                                       name="cidade"
+                                       id="id_cidade"
+                                       class="form-control {% if form.cidade.errors %}is-invalid{% endif %}"
+                                       value="{{ form.cidade.value|default_if_none:'' }}">
+                                {% if form.cidade.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.cidade.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Bairro -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Bairro
+                                </label>
+                                <input type="text"
+                                       name="bairro"
+                                       id="id_bairro"
+                                       class="form-control {% if form.bairro.errors %}is-invalid{% endif %}"
+                                       value="{{ form.bairro.value|default_if_none:'' }}">
+                                {% if form.bairro.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.bairro.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Rua -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Rua
+                                </label>
+                                <input type="text"
+                                       name="rua"
+                                       id="id_rua"
+                                       class="form-control {% if form.rua.errors %}is-invalid{% endif %}"
+                                       value="{{ form.rua.value|default_if_none:'' }}">
+                                {% if form.rua.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.rua.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Número -->
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Número
+                                </label>
+                                <input type="text"
+                                       name="numero"
+                                       class="form-control {% if form.numero.errors %}is-invalid{% endif %}"
+                                       value="{{ form.numero.value|default_if_none:'' }}">
+                                {% if form.numero.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.numero.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Complemento -->
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Complemento
+                                </label>
+                                <input type="text"
+                                       name="complemento"
+                                       class="form-control {% if form.complemento.errors %}is-invalid{% endif %}"
+                                       placeholder="Apartamento, bloco, etc."
+                                       value="{{ form.complemento.value|default_if_none:'' }}">
+                                {% if form.complemento.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.complemento.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Referência -->
+                            <div class="col-md-4">
+                                <label class="form-label">
+                                    Ponto de referência
+                                </label>
+                                <input type="text"
+                                       name="referencia"
+                                       class="form-control {% if form.referencia.errors %}is-invalid{% endif %}"
+                                       placeholder="Próximo a..."
+                                       value="{{ form.referencia.value|default_if_none:'' }}">
+                                {% if form.referencia.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.referencia.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Endereço principal -->
+                            <div class="col-12">
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="id_padrao"
+                                           name="padrao"
+                                           {% if form.padrao.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_padrao">
+                                        Definir como endereço principal
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            {% if next == "checkout" %}
+                                <a href="{% url 'checkout' %}" class="btn btn-outline-secondary">
+                                    Voltar para o checkout
+                                </a>
+                            {% else %}
+                                <a href="{% url 'minha_conta' %}" class="btn btn-outline-secondary">
+                                    Voltar para Minha conta
+                                </a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">
+                                Salvar endereço
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
             </div>
-
-            <div class="mb-3">
-              <label class="form-label">CEP</label>
-              {{ form.cep }}
-              <div class="form-text">Digitou o CEP e saiu do campo? Vamos tentar buscar o endereço automaticamente.</div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label class="form-label">Estado</label>
-                {{ form.estado }}
-              </div>
-              <div class="col-md-8 mb-3">
-                <label class="form-label">Cidade</label>
-                {{ form.cidade }}
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Bairro</label>
-              {{ form.bairro }}
-            </div>
-
-            <div class="row">
-              <div class="col-md-8 mb-3">
-                <label class="form-label">Rua</label>
-                {{ form.rua }}
-              </div>
-              <div class="col-md-4 mb-3">
-                <label class="form-label">Número</label>
-                {{ form.numero }}
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Complemento</label>
-              {{ form.complemento }}
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Referência</label>
-              {{ form.referencia }}
-            </div>
-
-            <div class="form-check mb-3">
-              {{ form.padrao }}
-              <label class="form-check-label ms-1">Definir como endereço principal</label>
-            </div>
-
-            <div class="d-flex justify-content-between">
-              <a href="{% url 'minha_conta' %}" class="btn btn-outline-secondary">
-                Voltar
-              </a>
-              <button type="submit" class="btn btn-primary">
-                Salvar
-              </button>
-            </div>
-          </form>
 
         </div>
-      </div>
     </div>
-  </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- Script ViaCEP + máscara simples de CEP -->
 <script>
-// Busca CEP automático via ViaCEP
-document.addEventListener('DOMContentLoaded', function () {
-  const cepInput = document.querySelector('input[data-cep="true"]');
-  if (!cepInput) return;
+(function() {
+    const cepInput = document.getElementById("id_cep");
+    if (!cepInput) return;
 
-  cepInput.addEventListener('blur', function () {
-    let cep = this.value.replace(/\D/g, '');
-    if (cep.length !== 8) return;
+    function limpaCamposEndereco() {
+        const ids = ["id_rua", "id_bairro", "id_cidade", "id_estado"];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = "";
+        });
+    }
 
-    fetch(`https://viacep.com.br/ws/${cep}/json/`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.erro) return;
-        const logradouro = document.getElementById('{{ form.rua.id_for_label }}');
-        const bairro = document.getElementById('{{ form.bairro.id_for_label }}');
-        const cidade = document.getElementById('{{ form.cidade.id_for_label }}');
-        const estado = document.getElementById('{{ form.estado.id_for_label }}');
+    function applyCepMask(value) {
+        // remove tudo que não for número
+        value = value.replace(/\D/g, "");
+        // aplica máscara 00000-000
+        if (value.length > 5) {
+            value = value.slice(0, 5) + "-" + value.slice(5, 8);
+        }
+        return value;
+    }
 
-        if (logradouro && data.logradouro) logradouro.value = data.logradouro;
-        if (bairro && data.bairro) bairro.value = data.bairro;
-        if (cidade && data.localidade) cidade.value = data.localidade;
-        if (estado && data.uf) estado.value = data.uf;
-      })
-      .catch(e => console.log(e));
-  });
-});
+    cepInput.addEventListener("input", function(e) {
+        this.value = applyCepMask(this.value);
+    });
+
+    cepInput.addEventListener("blur", function() {
+        let cep = this.value.replace(/\D/g, "");
+
+        if (cep.length !== 8) {
+            return; // CEP incompleto
+        }
+
+        fetch("https://viacep.com.br/ws/" + cep + "/json/")
+            .then(resp => resp.json())
+            .then(data => {
+                if (data.erro) {
+                    limpaCamposEndereco();
+                    return;
+                }
+
+                const logradouro = document.getElementById("id_rua");
+                const bairro = document.getElementById("id_bairro");
+                const cidade = document.getElementById("id_cidade");
+                const estado = document.getElementById("id_estado");
+
+                if (logradouro && !logradouro.value) logradouro.value = data.logradouro || "";
+                if (bairro && !bairro.value) bairro.value = data.bairro || "";
+                if (cidade && !cidade.value) cidade.value = data.localidade || "";
+                if (estado && !estado.value) estado.value = data.uf || "";
+            })
+            .catch(() => {
+                // se der erro na API, só não preenche nada.
+            });
+    });
+})();
 </script>
 {% endblock %}

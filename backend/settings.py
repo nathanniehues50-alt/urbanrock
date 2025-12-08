@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'   # pasta onde o collectstatic junta tudo
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -14,7 +14,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # ============================
 
 SECRET_KEY = 'Caralhoa4'
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
     "urbanrock.com.br",
     "www.urbanrock.com.br",
@@ -36,6 +36,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'orders',
+
+
 
     # Apps do projeto
     'produtos',
@@ -135,7 +138,6 @@ USE_TZ = True
 # ============================
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 

@@ -1,0 +1,20 @@
+[0;1;32m●[0m urbanrock.service - UrbanRock Django Gunicorn Service
+     Loaded: loaded (/etc/systemd/system/urbanrock.service; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Thu 2025-12-04 22:26:27 UTC; 2s ago
+   Main PID: 65723 (gunicorn)
+      Tasks: 1 (limit: 2307)
+     Memory: 12.3M
+        CPU: 95ms
+     CGroup: /system.slice/urbanrock.service
+             └─65723 /root/urbanrock/venv/bin/python3 /root/urbanrock/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 backend.wsgi:application
+
+Dec 04 22:26:27 ubuntu-s-1vcpu-2gb-amd-nyc3-01 systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185murbanrock.service: Failed with result 'exit-code'.[0m
+Dec 04 22:26:27 ubuntu-s-1vcpu-2gb-amd-nyc3-01 systemd[1]: Stopped UrbanRock Django Gunicorn Service.
+Dec 04 22:26:27 ubuntu-s-1vcpu-2gb-amd-nyc3-01 systemd[1]: Started UrbanRock Django Gunicorn Service.
+Dec 04 22:26:27 ubuntu-s-1vcpu-2gb-amd-nyc3-01 gunicorn[65723]: [2025-12-04 22:26:27 +0000] [65723] [INFO] Starting gunicorn 23.0.0
+Dec 04 22:26:27 ubuntu-s-1vcpu-2gb-amd-nyc3-01 gunicorn[65723]: [2025-12-04 22:26:27 +0000] [65723] [ERROR] Connection in use: ('127.0.0.1', 8000)
+Dec 04 22:26:27 ubuntu-s-1vcpu-2gb-amd-nyc3-01 gunicorn[65723]: [2025-12-04 22:26:27 +0000] [65723] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+Dec 04 22:26:28 ubuntu-s-1vcpu-2gb-amd-nyc3-01 gunicorn[65723]: [2025-12-04 22:26:28 +0000] [65723] [ERROR] Connection in use: ('127.0.0.1', 8000)
+Dec 04 22:26:28 ubuntu-s-1vcpu-2gb-amd-nyc3-01 gunicorn[65723]: [2025-12-04 22:26:28 +0000] [65723] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+Dec 04 22:26:29 ubuntu-s-1vcpu-2gb-amd-nyc3-01 gunicorn[65723]: [2025-12-04 22:26:29 +0000] [65723] [ERROR] Connection in use: ('127.0.0.1', 8000)
+Dec 04 22:26:29 ubuntu-s-1vcpu-2gb-amd-nyc3-01 gunicorn[65723]: [2025-12-04 22:26:29 +0000] [65723] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use

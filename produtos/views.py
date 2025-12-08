@@ -4,24 +4,26 @@ from django.views.decorators.http import require_POST
 from decimal import Decimal
 from .models import Produto, AvaliacaoProduto
 
+
 # ====================================================
-# ------------------ FUNÇÕES DO CARRINHO --------------
+# ----------- FUNÇÕES DE APOIO DO CARRINHO ----------
 # ====================================================
-
-def buscar_produtos(request):
-    termo = request.GET.get("q", "")
-
-    produtos = Produto.objects.filter(nome__icontains=termo)
-
-    return render(request, "produtos/buscar.html", {"produtos": produtos, "termo": termo})
 
 def _get_cart(session):
     """Retorna o carrinho existente na sessão ou cria um novo."""
     return session.setdefault("cart", {})
 
 
-def carrinho(request):
-    """Página do carrinho com subtotal, frete e cupom."""
+def montar_carrinho(request):
+    """
+    Monta o carrinho a partir da sessão e retorna
+    um dicionário com todos os dados usados na tela:
+    - itens
+    - subtotal
+    - cupom
+    - frete
+    - total
+    """
     cart = _get_cart(request.session)
 
     itens = []
@@ -31,7 +33,10 @@ def carrinho(request):
         produto = get_object_or_404(Produto, id=product_id)
         quantidade = item_data.get("quantidade", 1)
 
+        # Aqui você pode trocar para preco_promocional se quiser:
+        # preco_unitario = produto.preco_promocional or produto.preco
         preco_unitario = produto.preco
+
         subtotal_item = preco_unitario * quantidade
         subtotal += subtotal_item
 
@@ -51,7 +56,7 @@ def carrinho(request):
 
     total = subtotal - desconto_valor + frete_valor
 
-    return render(request, "carrinho.html", {
+    return {
         "itens": itens,
         "subtotal": subtotal,
         "cupom_codigo": cupom_codigo,
@@ -59,7 +64,28 @@ def carrinho(request):
         "frete_valor": frete_valor,
         "frete_desc": frete_desc,
         "total": total,
-    })
+    }
+
+
+# ====================================================
+# ------------------ BUSCA PRODUTOS ------------------
+# ====================================================
+
+def buscar_produtos(request):
+    termo = request.GET.get("q", "")
+    produtos = Produto.objects.filter(nome__icontains=termo)
+    return render(request, "produtos/buscar.html", {"produtos": produtos, "termo": termo})
+
+
+# ====================================================
+# ------------------ FUNÇÕES DO CARRINHO ------------
+# ====================================================
+
+def carrinho(request):
+    """Página do carrinho com subtotal, frete e cupom."""
+    contexto = montar_carrinho(request)
+
+    return render(request, "carrinho.html", contexto)
 
 
 @require_POST
@@ -118,13 +144,15 @@ def aplicar_cupom(request):
 
     if codigo == "DESCONTO10":
         request.session["cupom_codigo"] = codigo
-        request.session["desconto_valor"] = Decimal("10")
+        # salva como STRING, não Decimal
+        request.session["desconto_valor"] = "10.00"
     else:
         request.session["cupom_codigo"] = None
-        request.session["desconto_valor"] = Decimal("0")
+        request.session["desconto_valor"] = "0"
 
     request.session.modified = True
     return redirect("carrinho")
+
 
 
 @require_POST
@@ -132,10 +160,11 @@ def calcular_frete(request):
     cep = request.POST.get("cep", "").strip()
 
     if cep:
-        request.session["frete_valor"] = Decimal("19.90")
+        # salva como STRING, não Decimal
+        request.session["frete_valor"] = "19.90"
         request.session["frete_desc"] = f"Frete padrão para {cep} (5 a 7 dias úteis)"
     else:
-        request.session["frete_valor"] = Decimal("0")
+        request.session["frete_valor"] = "0"
         request.session["frete_desc"] = "CEP inválido"
 
     request.session.modified = True
@@ -143,7 +172,7 @@ def calcular_frete(request):
 
 
 # ====================================================
-# ------------------- HOME / INICIAL ------------------
+# ------------------- HOME / INICIAL -----------------
 # ====================================================
 
 def home(request):
@@ -155,7 +184,6 @@ def home(request):
     - destaques
     """
 
-    # Lista fixa de categorias exibidas na home
     categorias_home = [
         ("eletronicos", "Eletrônicos"),
         ("casa-cozinha", "Casa & Cozinha"),
@@ -176,7 +204,6 @@ def home(request):
                 "produtos": produtos_categoria,
             })
 
-    # Fallback: pelo menos 1 carrossel
     if not carrosseis:
         produtos_geral = Produto.objects.all()[:12]
         if produtos_geral.exists():
@@ -186,14 +213,12 @@ def home(request):
                 "produtos": produtos_geral,
             })
 
-    # 🔥 COLETAR TODOS OS IDs JÁ EXIBIDOS NOS CARROSSEIS
     ids_exibidos = []
     for sec in carrosseis:
         ids_exibidos += list(sec["produtos"].values_list("id", flat=True))
 
     destaques = Produto.objects.filter(destaque=True)[:6]
 
-    # 🔥 "EXPLORAR MAIS PRODUTOS" SEM REPETIR O QUE JÁ SAIU NOS CARROSSEIS
     produtos_recém_qs = Produto.objects.all().order_by("-id")
     if ids_exibidos:
         produtos_recém_qs = produtos_recém_qs.exclude(id__in=ids_exibidos)
@@ -207,7 +232,7 @@ def home(request):
 
 
 # ====================================================
-# ----------------- DETALHES DO PRODUTO --------------
+# --------------- DETALHES DO PRODUTO ----------------
 # ====================================================
 
 def produto_detalhe(request, produto_id):

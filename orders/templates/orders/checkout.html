@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Finalizar compra{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <h1 class="h3 mb-4">Finalizar compra</h1>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="row g-4">
+
+      <!-- COLUNA ESQUERDA: ENDEREÇOS -->
+      <div class="col-lg-6">
+
+        <h5 class="mb-3">Escolha o endereço de entrega</h5>
+
+        {% if enderecos %}
+          <div class="list-group mb-3">
+
+            {% for end in enderecos %}
+              <label class="list-group-item list-group-item-action d-flex gap-3 align-items-start">
+                <input
+                  class="form-check-input mt-1"
+                  type="radio"
+                  name="endereco_id"
+                  value="{{ end.id }}"
+                  {# 1º prioridade: endereço vindo da URL (novo endereço) #}
+                  {% if endereco_selecionado_id %}
+                    {% if end.id == endereco_selecionado_id %}checked{% endif %}
+                  {# 2º prioridade: endereço marcado como padrão #}
+                  {% elif end.padrao %}
+                    checked
+                  {# 3º prioridade: primeiro da lista #}
+                  {% elif forloop.first %}
+                    checked
+                  {% endif %}
+                >
+
+                <div>
+                  <!-- Apelido ou nome do destinatário -->
+                  <div class="fw-bold">
+                    {% if end.apelido %}
+                      {{ end.apelido }}
+                    {% else %}
+                      {{ end.nome_destinatario }}
+                    {% endif %}
+                  </div>
+
+                  <small class="text-muted d-block">
+                    {{ end.rua }}, {{ end.numero }}<br>
+                    {{ end.bairro }} – {{ end.cidade }}/{{ end.estado }}<br>
+                    CEP {{ end.cep }}
+                  </small>
+
+                  {% if end.complemento or end.referencia %}
+                    <small class="text-muted d-block mt-1">
+                      {% if end.complemento %}
+                        Comp.: {{ end.complemento }}{% if end.referencia %} · {% endif %}
+                      {% endif %}
+                      {% if end.referencia %}
+                        Ref.: {{ end.referencia }}
+                      {% endif %}
+                    </small>
+                  {% endif %}
+                </div>
+              </label>
+            {% endfor %}
+
+          </div>
+
+          {% if erro_endereco %}
+            <div class="alert alert-danger py-2">
+              {{ erro_endereco }}
+            </div>
+          {% endif %}
+
+          <div class="d-flex flex-column flex-sm-row gap-2">
+            <!-- CONFIRMAR PEDIDO -->
+            <button type="submit" class="btn btn-primary flex-fill">
+              Confirmar pedido
+            </button>
+
+            <!-- ADICIONAR NOVO ENDEREÇO (volta pro checkout depois) -->
+            <a href="{% url 'endereco_novo' %}?next=checkout"
+               class="btn btn-outline-secondary flex-fill">
+              Adicionar novo endereço
+            </a>
+          </div>
+
+        {% else %}
+          <!-- Cliente ainda não tem endereço -->
+          <p class="text-muted mb-3">
+            Você ainda não tem endereço cadastrado.
+          </p>
+          <a href="{% url 'endereco_novo' %}?next=checkout"
+             class="btn btn-primary">
+            Cadastrar primeiro endereço
+          </a>
+        {% endif %}
+
+      </div>
+
+      <!-- COLUNA DIREITA: RESUMO DO PEDIDO -->
+      <div class="col-lg-6">
+
+        <h5 class="mb-3">Resumo do pedido</h5>
+
+        <ul class="list-group mb-3 shadow-sm">
+
+          {% for item in itens %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">{{ item.produto.nome }}</div>
+                <small class="text-muted">Qtd: {{ item.quantidade }}</small>
+              </div>
+              <span>R$ {{ item.subtotal|floatformat:2 }}</span>
+            </li>
+          {% endfor %}
+
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Subtotal</span>
+            <strong>R$ {{ subtotal|floatformat:2 }}</strong>
+          </li>
+
+          {% if desconto_valor > 0 %}
+            <li class="list-group-item d-flex justify-content-between text-success">
+              <span>Desconto{% if cupom_codigo %} ({{ cupom_codigo }}){% endif %}</span>
+              <strong>- R$ {{ desconto_valor|floatformat:2 }}</strong>
+            </li>
+          {% endif %}
+
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Frete</span>
+            <strong>R$ {{ frete_valor|floatformat:2 }}</strong>
+          </li>
+
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Total</span>
+            <strong class="fs-5">R$ {{ total|floatformat:2 }}</strong>
+          </li>
+        </ul>
+
+        <p class="text-muted small mb-0">
+          Ao confirmar, o pedido será registrado e você será direcionado para a etapa de pagamento.
+        </p>
+
+      </div>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

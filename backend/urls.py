@@ -8,13 +8,18 @@ from django.contrib.auth import views as auth_views
 from usuarios import views as usuarios_views
 
 urlpatterns = [
+    # Painel admin
     path('admin/', admin.site.urls),
 
-    # Rotas da loja
+    # Rotas da loja (produtos, home, busca, etc)
     path('', include('produtos.urls')),
 
-    # Rotas de usuário
+    # Rotas de usuário (cadastro, login, endereços…)
     path('usuario/', include('usuarios.urls')),
+
+    # Rotas de pedidos (checkout, confirmação, pagamento…)
+    path('pedido/', include('orders.urls')),
+
 
     # LOGIN
     path(
@@ -23,7 +28,7 @@ urlpatterns = [
         name='login'
     ),
 
-    # LOGOUT (GET permitido e com redirecionamento)
+    # LOGOUT
     path(
         'logout/',
         auth_views.LogoutView.as_view(next_page='login'),
@@ -31,8 +36,13 @@ urlpatterns = [
     ),
 
     # Minha conta
-    path('minha-conta/', usuarios_views.minha_conta, name='minha_conta'),
+    path(
+        'minha-conta/',
+        usuarios_views.minha_conta,
+        name='minha_conta'
+    ),
 ]
 
+# Media (em modo DEBUG)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
